@@ -1,0 +1,6 @@
+credentials.json
+oems-702ce-firebase-adminsdk-fbsvc-a498d0281d.json
+*.log
+test-logs/
+*.tmp
+Thumbs.db
