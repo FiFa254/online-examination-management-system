@@ -28,17 +28,23 @@ function Test-App {
         $process = Start-Process -FilePath $ExePath -WorkingDirectory $ProjectRoot -PassThru -RedirectStandardOutput $OutPath -RedirectStandardError $ErrPath -WindowStyle Hidden
         Start-Sleep -Seconds 12
 
+        $process.Refresh()
         if ($process.HasExited) {
             Add-Content -LiteralPath $SummaryPath -Value "EXITED: $ExeName exit code $($process.ExitCode)"
         }
         else {
             Add-Content -LiteralPath $SummaryPath -Value "RUNNING: $ExeName stayed alive for 12 seconds; stopping test process."
-            Stop-Process -Id $process.Id -Force
+            Get-CimInstance Win32_Process |
+                Where-Object { $_.ParentProcessId -eq $process.Id } |
+                ForEach-Object {
+                    try { Stop-Process -Id $_.ProcessId -Force -ErrorAction Stop } catch {}
+                }
+            Stop-Process -Id $process.Id -Force -ErrorAction SilentlyContinue
         }
 
         if (Test-Path -LiteralPath $ErrPath) {
             $err = Get-Content -LiteralPath $ErrPath -Raw
-            if ($err.Trim().Length -gt 0) {
+            if (-not [string]::IsNullOrWhiteSpace($err)) {
                 Add-Content -LiteralPath $SummaryPath -Value "STDERR:"
                 Add-Content -LiteralPath $SummaryPath -Value $err
             }
