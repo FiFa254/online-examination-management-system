@@ -1,0 +1,8 @@
+PyQt5>=5.15
+PyQtWebEngine>=5.15
+mysql-connector-python>=8.0
+google-auth>=2.0
+google-api-python-client>=2.0
+pandas>=1.5
+openpyxl>=3.0
+python-dotenv>=1.0

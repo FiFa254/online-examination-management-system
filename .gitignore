@@ -4,3 +4,33 @@ oems-702ce-firebase-adminsdk-fbsvc-a498d0281d.json
 test-logs/
 *.tmp
 Thumbs.db
+
+# --- Added for the recovered/refactored Python source (src/) ---
+# Secrets - never commit these
+.env
+token.json
+*firebase-adminsdk*.json
+*-service-account*.json
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+venv/
+env/
+*.egg-info/
+
+# Build artifacts from local dev builds
+build/
+dist/
+*.spec
+
+# Generated data
+keypress_log.log
+login_history.xlsx
+
+# OS/editor
+.DS_Store
+.vscode/
+.idea/
