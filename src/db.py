@@ -1,23 +1,25 @@
 """
-Small helper around mysql.connector so callers never hardcode credentials
-and always close their connections, even on error.
+Small helper around pyodbc (Microsoft SQL Server) so callers never hardcode
+credentials and always close their connections, even on error.
+
+Requires the "ODBC Driver 17 for SQL Server" (or whichever driver name is set
+via OEMS_DB_DRIVER) to be installed on the machine running this code.
 """
 from contextlib import contextmanager
 
-import mysql.connector
+import pyodbc
 
 from .config import DatabaseConfig
 
 
 @contextmanager
 def get_connection():
-    """Yield a MySQL connection built from DatabaseConfig, always closing it."""
-    connection = mysql.connector.connect(**DatabaseConfig.as_kwargs())
+    """Yield a SQL Server connection built from DatabaseConfig, always closing it."""
+    connection = pyodbc.connect(DatabaseConfig.connection_string())
     try:
         yield connection
     finally:
-        if connection.is_connected():
-            connection.close()
+        connection.close()
 
 
 def fetch_one(query: str, params: tuple = ()):

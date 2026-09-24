@@ -3,6 +3,8 @@ Centralized configuration for OEMS.
 
 All secrets are read from environment variables (or a local .env file, which
 must never be committed to git). See .env.example for the required keys.
+
+The application connects to Microsoft SQL Server via pyodbc.
 """
 import os
 
@@ -16,24 +18,34 @@ except ImportError:
 
 
 class DatabaseConfig:
-    HOST = os.getenv("OEMS_DB_HOST", "127.0.0.1")
-    USER = os.getenv("OEMS_DB_USER", "root")
-    PASSWORD = os.getenv("OEMS_DB_PASSWORD")  # no insecure default on purpose
+    SERVER = os.getenv("OEMS_DB_SERVER", "localhost")
     NAME = os.getenv("OEMS_DB_NAME", "oems")
+    USER = os.getenv("OEMS_DB_USER")  # leave unset to use Windows/trusted auth
+    PASSWORD = os.getenv("OEMS_DB_PASSWORD")  # no insecure default on purpose
+    DRIVER = os.getenv("OEMS_DB_DRIVER", "{ODBC Driver 17 for SQL Server}")
+    # "yes" to use Windows Authentication instead of a SQL login
+    TRUSTED_CONNECTION = os.getenv("OEMS_DB_TRUSTED_CONNECTION", "no")
 
     @classmethod
-    def as_kwargs(cls) -> dict:
-        if not cls.PASSWORD:
-            raise RuntimeError(
-                "OEMS_DB_PASSWORD is not set. Copy .env.example to .env and "
-                "fill in your database password before running the app."
+    def connection_string(cls) -> str:
+        use_trusted = cls.TRUSTED_CONNECTION.strip().lower() in ("yes", "true", "1")
+
+        if use_trusted:
+            return (
+                f"DRIVER={cls.DRIVER};SERVER={cls.SERVER};DATABASE={cls.NAME};"
+                f"Trusted_Connection=yes;"
             )
-        return {
-            "host": cls.HOST,
-            "user": cls.USER,
-            "password": cls.PASSWORD,
-            "database": cls.NAME,
-        }
+
+        if not cls.USER or not cls.PASSWORD:
+            raise RuntimeError(
+                "OEMS_DB_USER / OEMS_DB_PASSWORD are not set. Copy .env.example to "
+                ".env and fill them in, or set OEMS_DB_TRUSTED_CONNECTION=yes to use "
+                "Windows Authentication instead."
+            )
+        return (
+            f"DRIVER={cls.DRIVER};SERVER={cls.SERVER};DATABASE={cls.NAME};"
+            f"UID={cls.USER};PWD={cls.PASSWORD};"
+        )
 
 
 OEMS_LINK_PREFIX = "https://www.oems://"

@@ -28,14 +28,14 @@ def decode_link(transformed_link: str) -> str:
 
 def is_code_unique(code: str) -> bool:
     row = db.fetch_one(
-        "SELECT COUNT(*) FROM link_log WHERE unique_code = %s", (code,)
+        "SELECT COUNT(*) FROM link_log WHERE unique_code = ?", (code,)
     )
     return row[0] == 0
 
 
 def check_code_exists(code: str) -> bool:
     row = db.fetch_one(
-        "SELECT COUNT(*) FROM link_log WHERE unique_code = %s", (code,)
+        "SELECT COUNT(*) FROM link_log WHERE unique_code = ?", (code,)
     )
     return row[0] > 0
 
@@ -53,7 +53,7 @@ def generate_unique_code(length: int = 6) -> str:
 def save_converted_link(original_link: str, transformed_link: str, unique_code: str) -> None:
     db.execute(
         "INSERT INTO link_log (original_link, transformed_link, unique_code) "
-        "VALUES (%s, %s, %s)",
+        "VALUES (?, ?, ?)",
         (original_link, transformed_link, unique_code),
     )
 
