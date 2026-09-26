@@ -9,12 +9,10 @@ This project is a merged Windows application package for the Online Examination 
 - `src/student_app.py` — student-facing app (recovered from `form2.py` / `ClassroomApp`)
 - `src/teacher_app.py` — teacher-facing app (recovered from `form3.py` / `MainGUI`)
 
-Both executables depend on the bundled `_internal` runtime folder and must be launched from this project directory. The `src/` package is the maintainable source these executables were originally built from; it can be run directly with Python (see "Run from source" below) or repackaged with PyInstaller.
+The compiled executables are not stored in this repository. Download `OEMS-windows-x64.zip` from the [latest release](https://github.com/FiFa254/online-examination-management-system/releases/latest); it contains both executables and the `_internal` runtime folder they depend on, so launch them from the unzipped folder. The `src/` package is the maintainable source these executables were originally built from; it can be run directly with Python (see "Run from source" below) or repackaged with PyInstaller.
 
 ## Project Structure
 
-- `Student.exe`, `Teacher.exe` — PyInstaller-built entry points (stored via Git LFS)
-- `_internal/` — bundled Python runtime and dependencies (PyQt5, Firebase/Google API client libraries, etc.) required by both executables
 - `src/` — recovered and refactored Python application source:
   - `config.py` — environment-variable-driven configuration (database connection, Google Classroom OAuth scopes, exam-link prefix). No secrets are hardcoded here.
   - `db.py` — SQL Server connection helpers (via `pyodbc`) built on `config.DatabaseConfig`
@@ -25,7 +23,7 @@ Both executables depend on the bundled `_internal` runtime folder and must be la
 - `requirements.txt` — Python dependencies for running `src/` directly
 - `.env.example` — template for the local `.env` file (copy to `.env` and fill in your database connection details)
 - `credentials.example.json`, `firebase-service-account.example.json` — shape references for the real credential files (not committed)
-- `verify-run.ps1` — PowerShell script that launches both executables and captures logs to `test-logs/`
+- `verify-run.ps1` — PowerShell script that launches both executables and captures logs to `test-logs/` (run it from the unzipped release folder)
 - `TEST_REPORT.md` — test report for this build
 - `OEMS_LOGO.png`, `oems_icon.ico` — branding assets
 
@@ -56,6 +54,8 @@ Use the included example files as shape references only. Do not commit real priv
 ## Run
 
 ### From the compiled executables (PowerShell)
+
+Download and unzip `OEMS-windows-x64.zip` from the [latest release](https://github.com/FiFa254/online-examination-management-system/releases/latest), copy `.env.example` to `.env`, add `credentials.json`, then from that folder:
 
 ```powershell
 .\Student.exe

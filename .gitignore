@@ -34,3 +34,8 @@ login_history.xlsx
 .DS_Store
 .vscode/
 .idea/
+
+# Windows build lives in GitHub Releases, not in git
+_internal/
+Student.exe
+Teacher.exe
