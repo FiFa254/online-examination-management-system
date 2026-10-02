@@ -26,6 +26,8 @@ class MainGUI(QWidget):
         
         # สร้าง layout แนวตั้ง
         self.layout = QVBoxLayout()
+        self.layout.setContentsMargins(24, 24, 24, 24)
+        self.layout.setSpacing(12)
         self.setLayout(self.layout)
 
         # สร้างหน้าหลัก
@@ -39,21 +41,14 @@ class MainGUI(QWidget):
         welcome_label = QLabel("ยินดีต้อนรับอาจารย์")
         welcome_label.setAlignment(Qt.AlignCenter)
         welcome_label.setFont(QFont("Arial", 22, QFont.Bold))
-        welcome_label.setFixedSize(700, 80)
-        welcome_label.setStyleSheet("""
-            color: #FFF;
-            border-radius: 10px;
-            background-color:#6b6961;
-            padding: 10px;
-            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
-        """)
+        theme.role(welcome_label, "title")
         self.layout.addWidget(welcome_label)
 
         # สร้างกรอบสำหรับปุ่มทั้งหมด
         button_frame = QFrame()
         button_frame.setFrameShape(QFrame.Box)  # กรอบเป็นแบบ Box
         button_frame.setFrameShadow(QFrame.Raised)  # เงาของกรอบ
-        button_frame.setStyleSheet("border: 3px solid black; border-radius: 10px; padding: 20px;")
+        theme.role(button_frame, "card")
         
         # สร้าง layout แนวตั้งสำหรับปุ่มในกรอบ
         button_layout = QVBoxLayout()
@@ -62,59 +57,27 @@ class MainGUI(QWidget):
         # สร้างปุ่มสำหรับ "ประวัติการเข้าสอบ"
         history_button = QPushButton("ประวัติการเข้าสอบ")
         history_button.setFont(QFont("Arial", 14))
-        history_button.setStyleSheet("""
-            QPushButton {
-                background-color: #2ecc71;
-                color: white;
-                padding: 15px;
-                border-radius: 10px;
-                margin: 10px 0;
-            }
-            QPushButton:hover {
-                background-color: #27ae60;
-            }
-        """)
+        theme.role(history_button, "menu")
         history_button.clicked.connect(self.show_login_history)  # เชื่อมต่อสัญญาณกับฟังก์ชัน
         button_layout.addWidget(history_button)
 
         # สร้างปุ่มสำหรับ "สร้างลิ้งค์เข้ารหัสสำหรับโปรแกรม"
         create_link_button = QPushButton("สร้างลิ้งค์เข้ารหัสสำหรับโปรแกรม")
         create_link_button.setFont(QFont("Arial", 14))
-        create_link_button.setStyleSheet("""
-            QPushButton {
-                background-color: #e67e22;
-                color: white;
-                padding: 15px;
-                border-radius: 10px;
-                margin: 10px 0;
-            }
-            QPushButton:hover {
-                background-color: #d35400;
-            }
-        """)
+        theme.role(create_link_button, "menu")
         create_link_button.clicked.connect(self.show_link_transformer)  # กดปุ่มแล้วแสดงหน้าจอการเข้ารหัส
         button_layout.addWidget(create_link_button)
 
         # สร้างปุ่ม Exit
         exit_button = QPushButton("Exit")
         exit_button.setFont(QFont("Arial", 14))
-        exit_button.setStyleSheet("""
-            QPushButton {
-                background-color: #e74c3c;
-                color: white;
-                padding: 15px;
-                border-radius: 10px;
-                margin: 10px 0;
-            }
-            QPushButton:hover {
-                background-color: #c0392b;
-            }
-        """)
+        theme.role(exit_button, "danger")
         exit_button.clicked.connect(close_app)
         button_layout.addWidget(exit_button)
 
         # เพิ่มกรอบที่บรรจุปุ่มเข้าใน layout หลัก
         self.layout.addWidget(button_frame)
+        self.layout.addStretch()
     def closeEvent(self, event):
         """ลบไฟล์ token.json เมื่อปิดแอปพลิเคชัน"""
         if os.path.exists('token.json'):
@@ -129,7 +92,7 @@ class MainGUI(QWidget):
         history_label = QLabel("ประวัติการเข้าสอบ")
         history_label.setFont(QFont("Arial", 18, QFont.Bold))
         history_label.setAlignment(Qt.AlignCenter)
-        history_label.setStyleSheet("color: #3498db;")
+        theme.role(history_label, "title")
         self.layout.addWidget(history_label)
 
         try:
@@ -150,17 +113,7 @@ class MainGUI(QWidget):
             # สร้างปุ่มส่งออกเป็น Excel
             export_button = QPushButton("ส่งออกเป็น Excel")
             export_button.setFont(QFont("Arial", 14))
-            export_button.setStyleSheet(""" 
-                QPushButton {
-                    background-color: #3498db; 
-                    color: white; 
-                    padding: 10px; 
-                    border-radius: 10px; 
-                } 
-                QPushButton:hover { 
-                    background-color: #2980b9; 
-                } 
-            """)
+            theme.role(export_button, "primary")
             export_button.clicked.connect(lambda: self.export_to_excel(records))  # เชื่อมต่อกับฟังก์ชันส่งออก
             self.layout.addWidget(export_button)
 
@@ -170,17 +123,6 @@ class MainGUI(QWidget):
         # สร้างปุ่มย้อนกลับ
         back_button = QPushButton("ย้อนกลับ")
         back_button.setFont(QFont("Arial", 14))
-        back_button.setStyleSheet(""" 
-            QPushButton {
-                background-color: #3498db; 
-                color: white; 
-                padding: 10px; 
-                border-radius: 10px; 
-            } 
-            QPushButton:hover { 
-                background-color: black; 
-            } 
-        """)
         back_button.clicked.connect(self.create_main_page)
         self.layout.addWidget(back_button)
 
@@ -202,12 +144,13 @@ class MainGUI(QWidget):
         header_label = QLabel('OEMS Link Transformer')
         header_label.setFont(QFont('Arial', 18, QFont.Bold))
         header_label.setAlignment(Qt.AlignCenter)
-        header_label.setStyleSheet("color: navy;")
+        theme.role(header_label, "title")
         self.layout.addWidget(header_label)
 
         # สร้าง label สำหรับการป้อนลิงค์
         link_label = QLabel('Enter the link to encode or decode:')
         link_label.setFont(QFont('Arial', 12))
+        theme.role(link_label, "muted")
         self.layout.addWidget(link_label)
 
         # ช่องกรอกข้อมูลลิงก์
@@ -222,34 +165,13 @@ class MainGUI(QWidget):
         # สร้างปุ่ม Encode
         encode_button = QPushButton("Encode Link")
         encode_button.setFont(QFont("Arial", 14))
-        encode_button.setStyleSheet(""" 
-            QPushButton {
-                background-color: #2ecc71; 
-                color: white; 
-                padding: 10px; 
-                border-radius: 10px; 
-            } 
-            QPushButton:hover { 
-                background-color: #27ae60; 
-            } 
-        """)
+        theme.role(encode_button, "primary")
         encode_button.clicked.connect(self.encode_link)
         button_layout.addWidget(encode_button)
 
         # สร้างปุ่ม Decode
         decode_button = QPushButton("Decode Link")
         decode_button.setFont(QFont("Arial", 14))
-        decode_button.setStyleSheet(""" 
-            QPushButton {
-                background-color: #e67e22; 
-                color: white; 
-                padding: 10px; 
-                border-radius: 10px; 
-            } 
-            QPushButton:hover { 
-                background-color: #d35400; 
-            } 
-        """)
         decode_button.clicked.connect(self.decode_link)
         button_layout.addWidget(decode_button)
 
@@ -258,34 +180,12 @@ class MainGUI(QWidget):
         # สร้างปุ่มสร้างคัดลอกลิงก์และรหัส
         self.copy_link_button = QPushButton("Copy Encoded Link")
         self.copy_link_button.setFont(QFont("Arial", 14))
-        self.copy_link_button.setStyleSheet("""
-            QPushButton {
-                background-color: #3498db; 
-                color: white; 
-                padding: 10px; 
-                border-radius: 10px; 
-            }
-            QPushButton:hover { 
-                background-color: #2980b9;
-            }
-        """)
         self.copy_link_button.clicked.connect(self.copy_link_to_clipboard)
         self.layout.addWidget(self.copy_link_button)
         self.copy_link_button.setEnabled(False)  # ปิดปุ่มก่อนเพื่อเปิดใช้งานหลังจากแปลงลิงก์แล้ว
 
         self.copy_code_button = QPushButton("Copy Unique Code")
         self.copy_code_button.setFont(QFont("Arial", 14))
-        self.copy_code_button.setStyleSheet("""
-            QPushButton {
-                background-color: #9b59b6;
-                color: white;
-                padding: 10px; 
-                border-radius: 10px; 
-            }
-            QPushButton:hover {
-                background-color: #8e44ad;
-            }
-        """)
         self.copy_code_button.clicked.connect(self.copy_code_to_clipboard)
         self.layout.addWidget(self.copy_code_button)
         self.copy_code_button.setEnabled(False)  # ปิดปุ่มก่อนเพื่อเปิดใช้งานหลังจากแปลงลิงก์แล้ว
@@ -293,19 +193,9 @@ class MainGUI(QWidget):
         # สร้างปุ่มย้อนกลับ
         back_button = QPushButton("ย้อนกลับ")
         back_button.setFont(QFont("Arial", 14))
-        back_button.setStyleSheet(""" 
-            QPushButton {
-                background-color: #3498db; 
-                color: white; 
-                padding: 10px; 
-                border-radius: 10px; 
-            } 
-            QPushButton:hover { 
-                background-color: #2980b9; 
-            } 
-        """)
         back_button.clicked.connect(self.create_main_page)
         self.layout.addWidget(back_button)
+        self.layout.addStretch()
 
     def is_code_unique(self, code):
         return link_service.is_code_unique(code)
