@@ -70,6 +70,16 @@ powershell -ExecutionPolicy Bypass -File .\verify-run.ps1
 
 Logs are written to `test-logs/`.
 
+### Choose Teacher or Student in one window (`OEMS.exe`)
+
+`src/launcher.py` opens a small window with two cards, อาจารย์ and นักศึกษา. Picking one starts `Teacher.exe` or `Student.exe` from the same folder and closes the chooser.
+
+1. Run `build-launcher.bat` (needs Python 3). It builds `dist\OEMS.exe` with PyInstaller.
+2. Copy `OEMS.exe` into the unzipped release folder, next to `Student.exe` and `Teacher.exe`.
+3. Double-click `OEMS.exe`.
+
+From source, `start.bat` opens the same window and starts `python -m src.teacher_app` or `python -m src.student_app` instead.
+
 ### From source
 
 ```powershell

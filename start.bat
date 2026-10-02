@@ -30,18 +30,7 @@ if not exist .env (
     start /wait notepad .env
 )
 
-echo.
-echo   1 - Teacher app
-echo   2 - Student app ^(needs credentials.json for Google Classroom^)
-echo.
-choice /c 12 /n /m "Choose 1 or 2: "
-if errorlevel 2 (
-    set "APP=src.student_app"
-) else (
-    set "APP=src.teacher_app"
-)
-
-.venv\Scripts\python.exe -m %APP%
+.venv\Scripts\python.exe -m src.launcher
 if errorlevel 1 goto :fail
 goto :eof
 

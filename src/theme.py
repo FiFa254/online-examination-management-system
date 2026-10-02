@@ -96,6 +96,14 @@ QPushButton[role="menu"] {{
 QPushButton[role="menu"]:hover {{
     background: {ACCENT_SOFT};
 }}
+QPushButton[role="choice"] {{
+    border-radius: 14px;
+    padding: 0;
+}}
+QPushButton[role="choice"]:hover {{
+    background: {ACCENT_SOFT};
+    border: 2px solid {ACCENT};
+}}
 QLineEdit {{
     background: {SURFACE};
     border: 1px solid {LINE};
