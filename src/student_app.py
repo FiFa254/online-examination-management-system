@@ -15,6 +15,7 @@ from datetime import datetime
 from PyQt5.QtWidgets import QScrollArea,QGridLayout
 from PyQt5.QtWidgets import QFrame
 from .config import GOOGLE_CLASSROOM_SCOPES as SCOPES
+from .config import OEMS_LINK_PREFIX
 from . import link_service
 
 class CustomWebEnginePage(QWebEnginePage):
@@ -28,7 +29,7 @@ class CustomWebEnginePage(QWebEnginePage):
 
             # ตรวจสอบว่าลิงก์เป็นแบบแปลงหรือไม่
             if url_str.startswith('https://www.oems//'):
-                self.prompt_for_code(url_str)  # เรียแร้ช้ฟังก์ชันเพื่อขอรหัส unique_code
+                self.prompt_for_code(OEMS_LINK_PREFIX + url_str[len('https://www.oems//'):])  # เรียแร้ช้ฟังก์ชันเพื่อขอรหัส unique_code
                 return False  # หยุดการทำงานของ QWebEngineView
 
             # เปิดลิงก์ใน QWebEngineView
@@ -95,7 +96,7 @@ class UniqueCodeDialog(QDialog):
 
     def check_code_in_database(self, unique_code):
         try:
-            return link_service.check_code_exists(unique_code)
+            return link_service.check_code_exists(unique_code, self.encoded_link)
         except Exception as err:
             QMessageBox.critical(self, "ข้อผิดพลาด", f"เกิดข้อผิดพลาดในการเชื่อมต่อฐานข้อมูล: {err}")
             return False
@@ -441,8 +442,8 @@ class ClassroomApp(QWidget):
         self.clear_courses()
 
         if os.path.exists('token.json'):
-            creds = Credentials.from_authorized_user_file('token.json', SCOPES)
             try:
+                creds = Credentials.from_authorized_user_file('token.json', SCOPES)
                 self.service = build('classroom', 'v1', credentials=creds)
                 results = self.service.courses().list(pageSize=10).execute()
                 courses = results.get('courses', [])
@@ -562,8 +563,6 @@ class ClassroomApp(QWidget):
             key = event.text()
         else:  # ถ้าเป็นปุ่มพิเศษ ให้แสดงชื่อปุ่ม
             key = self.get_key_name(key)
-
-        self.log_keypress_to_file(key, timestamp)
 
         self.log_keypress_to_file(key, timestamp)
     
