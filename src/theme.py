@@ -116,6 +116,9 @@ QTableWidget {{
     selection-background-color: {ACCENT_SOFT};
     selection-color: {INK};
 }}
+QTableWidget::item {{
+    padding: 6px 12px;
+}}
 QHeaderView::section {{
     background: #f7f9f7;
     color: {MUTED};

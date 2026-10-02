@@ -16,6 +16,8 @@ from . import link_service
 from . import db
 from . import theme
 
+HISTORY_MIN_WIDTH = 900
+
 # สร้างคลาสสำหรับหน้าต่างหลัก
 class MainGUI(QWidget):
     def __init__(self):
@@ -104,13 +106,15 @@ class MainGUI(QWidget):
             table.setColumnCount(5)
             table.setHorizontalHeaderLabels(["ID", "NAME", "Email", "Role", "Time"])
             table.verticalHeader().setVisible(False)
-            table.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
+            table.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeToContents)
+            table.horizontalHeader().setStretchLastSection(True)
 
             for row_index, row_data in enumerate(records):
                 for column_index, data in enumerate(row_data):
                     table.setItem(row_index, column_index, QTableWidgetItem(str(data)))
 
             self.layout.addWidget(table)
+            self.resize(max(self.width(), HISTORY_MIN_WIDTH), self.height())
 
             # สร้างปุ่มส่งออกเป็น Excel
             export_button = QPushButton("ส่งออกเป็น Excel")
