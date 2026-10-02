@@ -17,6 +17,7 @@ from PyQt5.QtWidgets import QFrame
 from .config import GOOGLE_CLASSROOM_SCOPES as SCOPES
 from .config import OEMS_LINK_PREFIX
 from . import link_service
+from . import theme
 
 class CustomWebEnginePage(QWebEnginePage):
     def __init__(self, parent=None):
@@ -645,6 +646,7 @@ class ClassroomApp(QWidget):
         
 if __name__ == "__main__":
     app = QApplication(sys.argv)
+    theme.apply(app)
     window = ClassroomApp()
     window.showFullScreen()
     window.show()

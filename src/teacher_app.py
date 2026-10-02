@@ -14,6 +14,7 @@ from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QFont
 from . import link_service
 from . import db
+from . import theme
 
 # สร้างคลาสสำหรับหน้าต่างหลัก
 class MainGUI(QWidget):
@@ -452,6 +453,7 @@ def close_app():
 
 
 app = QApplication(sys.argv)
+theme.apply(app)
 main_gui = MainGUI()
 main_gui.show()
 sys.exit(app.exec_())
