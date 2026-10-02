@@ -185,8 +185,8 @@ class MainGUI(QWidget):
 
     # ฟังก์ชันส่งออกข้อมูลเป็น Excel
     def export_to_excel(self, records):
-        df = pd.DataFrame(records, columns=["ID", "NAME", "Email", "Role", "Time"])
         try:
+            df = pd.DataFrame([tuple(r) for r in records], columns=["ID", "NAME", "Email", "Role", "Time"])
             df.to_excel('login_history.xlsx', index=False)  # ส่งออกไปยังไฟล์ Excel
             QMessageBox.information(self, "Export Successful", "ประวัติการเข้าสอบถูกส่งออกเป็นไฟล์ Excel สำเร็จแล้ว!")
         except Exception as e:
@@ -307,11 +307,7 @@ class MainGUI(QWidget):
         self.layout.addWidget(back_button)
 
     def is_code_unique(self, code):
-        try:
-            return link_service.is_code_unique(code)
-        except Exception as e:
-            self.show_message("Database Error", f"Could not check code uniqueness: {str(e)}")
-            return False
+        return link_service.is_code_unique(code)
 
     # ฟฅก์ชนสำหรับสางญฅะฉญญฉ 6 ตัวทึฉเฯพน๋งฉำฉะฉฉฉฉเฉฉนฉสฉจฉฌฉ
     def generate_unique_code(self, length=6):
@@ -352,10 +348,7 @@ class MainGUI(QWidget):
 
     # ฟกญชนาญฉทญแญฅะญญฉฅญโญจญฅญแญฉชญฅญใญญญญญญญญญญญญญญญญญญญญญญญญญญญญญญญญญญ
     def save_converted_link(self, original_link, transformed_link, unique_code):
-        try:
-            link_service.save_converted_link(original_link, transformed_link, unique_code)
-        except Exception as e:
-            self.show_message("Database Error", f"Could not save link: {str(e)}")
+        link_service.save_converted_link(original_link, transformed_link, unique_code)
 
     def decode_link(self):
         transformed_link = self.link_input.text()
