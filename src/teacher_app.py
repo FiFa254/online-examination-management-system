@@ -3,7 +3,7 @@ import base64
 import pandas as pd  # เพิ่มการนนนำเข้า pandas
 from PyQt5.QtGui import QFont, QColor, QPalette
 from PyQt5.QtCore import Qt
-from PyQt5.QtWidgets import QApplication, QWidget, QLabel, QPushButton, QVBoxLayout, QSpacerItem, QSizePolicy, QLineEdit, QHBoxLayout, QMessageBox, QTableWidget, QTableWidgetItem
+from PyQt5.QtWidgets import QApplication, QWidget, QLabel, QPushButton, QVBoxLayout, QSpacerItem, QSizePolicy, QLineEdit, QHBoxLayout, QMessageBox, QTableWidget, QTableWidgetItem, QHeaderView
 from PyQt5.QtWebEngineWidgets import QWebEnginePage, QWebEngineView  # นำเข้า QWebEngineView และ QWebEnginePage
 import openpyxl
 import random
@@ -103,6 +103,8 @@ class MainGUI(QWidget):
             table.setRowCount(len(records))
             table.setColumnCount(5)
             table.setHorizontalHeaderLabels(["ID", "NAME", "Email", "Role", "Time"])
+            table.verticalHeader().setVisible(False)
+            table.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
 
             for row_index, row_data in enumerate(records):
                 for column_index, data in enumerate(row_data):
