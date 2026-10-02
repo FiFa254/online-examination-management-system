@@ -33,9 +33,10 @@ def is_code_unique(code: str) -> bool:
     return row[0] == 0
 
 
-def check_code_exists(code: str) -> bool:
+def check_code_exists(code: str, transformed_link: str) -> bool:
     row = db.fetch_one(
-        "SELECT COUNT(*) FROM link_log WHERE unique_code = ?", (code,)
+        "SELECT COUNT(*) FROM link_log WHERE unique_code = ? AND transformed_link = ?",
+        (code, transformed_link),
     )
     return row[0] > 0
 

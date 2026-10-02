@@ -2,8 +2,8 @@ import sys
 import os
 import base64
 import re
-from PyQt5.QtWidgets import QApplication, QWidget, QVBoxLayout, QLabel, QPushButton, QStackedWidget, QLineEdit, QMessageBox,QSizePolicy,QGraphicsOpacityEffect
-from PyQt5.QtGui import QFont, QColor, QPalette,QPixmap,QLinearGradient
+from PyQt5.QtWidgets import QApplication, QWidget, QVBoxLayout, QLabel, QPushButton, QStackedWidget, QLineEdit, QMessageBox,QSizePolicy
+from PyQt5.QtGui import QFont, QPixmap
 from PyQt5.QtCore import Qt
 from PyQt5.QtWebEngineWidgets import QWebEngineView, QWebEnginePage
 from google.oauth2.credentials import Credentials
@@ -15,7 +15,9 @@ from datetime import datetime
 from PyQt5.QtWidgets import QScrollArea,QGridLayout
 from PyQt5.QtWidgets import QFrame
 from .config import GOOGLE_CLASSROOM_SCOPES as SCOPES
+from .config import OEMS_LINK_PREFIX
 from . import link_service
+from . import theme
 
 class CustomWebEnginePage(QWebEnginePage):
     def __init__(self, parent=None):
@@ -28,7 +30,7 @@ class CustomWebEnginePage(QWebEnginePage):
 
             # ตรวจสอบว่าลิงก์เป็นแบบแปลงหรือไม่
             if url_str.startswith('https://www.oems//'):
-                self.prompt_for_code(url_str)  # เรียแร้ช้ฟังก์ชันเพื่อขอรหัส unique_code
+                self.prompt_for_code(OEMS_LINK_PREFIX + url_str[len('https://www.oems//'):])  # เรียแร้ช้ฟังก์ชันเพื่อขอรหัส unique_code
                 return False  # หยุดการทำงานของ QWebEngineView
 
             # เปิดลิงก์ใน QWebEngineView
@@ -67,12 +69,11 @@ class UniqueCodeDialog(QDialog):
         # ช่องกรอกสำหรับรหัส unique code
         self.code_input = QLineEdit(self)
         self.code_input.setPlaceholderText("กรุณาใส่รหัส")
-        self.code_input.setStyleSheet("padding: 10px; border: 1px solid #007BFF; border-radius: 5px; font-size: 14px;")
         self.layout.addWidget(self.code_input)
 
         # ปุ่มสำหรับตรวจสอบรหัส
         validate_button = QPushButton("ตรวจสอบรหัส")
-        validate_button.setStyleSheet("background-color: #4CAF50; color: white; padding: 10px; border-radius: 5px; font-size: 16px; border: none;")
+        theme.role(validate_button, "primary")
         validate_button.setCursor(Qt.PointingHandCursor)
         validate_button.clicked.connect(self.validate_code)
         self.layout.addWidget(validate_button)
@@ -95,7 +96,7 @@ class UniqueCodeDialog(QDialog):
 
     def check_code_in_database(self, unique_code):
         try:
-            return link_service.check_code_exists(unique_code)
+            return link_service.check_code_exists(unique_code, self.encoded_link)
         except Exception as err:
             QMessageBox.critical(self, "ข้อผิดพลาด", f"เกิดข้อผิดพลาดในการเชื่อมต่อฐานข้อมูล: {err}")
             return False
@@ -130,51 +131,45 @@ class AssignmentDetails(QWidget):
             <style>
                 body {{
                     font-family: Arial, sans-serif;
-                    margin: 20px;
-                    background-color: #f0f0f0;
-                    color: #333;
+                    margin: 24px;
+                    background-color: {theme.CANVAS};
+                    color: {theme.INK};
                 }}
                 h2 {{
-                    color: #ffffff;
-                    font-size: 36px;
-                    border: 3px solid #45A049;
-                    text-align: center;
-                    background-color: #45A049;
-                    border-radius: 15px;
-                    padding: 20px;
-                    margin-bottom: 30px;
-                    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+                    font-size: 28px;
+                    margin: 0 0 16px 0;
+                    padding-bottom: 12px;
+                    border-bottom: 3px solid {theme.ACCENT};
                 }}
                 p {{
-                    font-size: 20px;
+                    font-size: 18px;
                     line-height: 1.6;
-                    background-color: #ffffff;
+                    background-color: {theme.SURFACE};
                     padding: 20px;
-                    border: 2px solid #ddd;
-                    border-radius: 10px;
-                    box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1);
-                    margin-bottom: 20px;
-                    height:800px;
+                    border: 1px solid {theme.LINE};
+                    border-radius: 12px;
+                    margin-bottom: 16px;
                 }}
                 a {{
-                    color: #007BFF;
-                    text-decoration: none;
+                    color: {theme.ACCENT};
                     font-weight: bold;
-                    transition: color 0.3s, transform 0.3s;
+                    text-underline-offset: 3px;
                 }}
                 a:hover {{
-                    color: #004085;
-                    text-decoration: underline;
-                    transform: scale(1.05);
+                    color: {theme.ACCENT_HOVER};
                 }}
                 .link-section {{
-                    margin-top: 30px;
-                    background-color: #ffffff;
-                    border: 2px solid #45A049;
-                    border-radius: 10px;
-                    padding: 15px;
-                    box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1);
+                    margin-top: 24px;
+                    background-color: {theme.SURFACE};
+                    border: 1px solid {theme.LINE};
+                    border-radius: 12px;
+                    padding: 16px;
             }}
+                .link-section p {{
+                    border: none;
+                    padding: 4px 0;
+                    margin: 0;
+                }}
         </style>
         </head>
         <body>
@@ -199,14 +194,6 @@ class AssignmentDetails(QWidget):
 
         # ปุ่มกลับไปยังรายละเอียดของคอร์ส
         self.back_button = QPushButton('Back To Course')
-        self.back_button.setStyleSheet("""
-            background-color: #4CAF50; 
-            color: white; 
-            padding: 10px; 
-            border-radius: 5px; 
-            font-size: 16px; 
-            border: none;
-        """)
         self.back_button.setCursor(Qt.PointingHandCursor)
         self.back_button.clicked.connect(self.go_back)
         self.layout.addWidget(self.back_button)
@@ -256,24 +243,6 @@ class CourseDetails(QWidget):
 
         # ปิ่มกลับไปยังห้องเรียน
         self.back_button = QPushButton('Back To Classroom')
-        self.back_button.setStyleSheet("""
-            QPushButton {
-                background-color: #45A049;
-                color: white;
-                padding: 15px;
-                border-radius: 10px;
-                font-size: 18px;
-                font-weight: bold;
-                border: none;
-                margin-top: 30px;
-                box-shadow: 0 5px 10px rgba(0, 0, 0, 0.3);
-            }
-            QPushButton:hover {
-                background-color: #3D8C40;
-                box-shadow: 0 8px 16px rgba(0, 0, 0, 0.4);
-                transform: scale(1.05);
-            }
-        """)
         self.back_button.setCursor(Qt.PointingHandCursor)
         self.back_button.clicked.connect(self.go_back)
 
@@ -288,16 +257,7 @@ class CourseDetails(QWidget):
             # แสดงชื่อคอรฌส
             course_name_label = QLabel(f'Course: {course_name}')
             course_name_label.setAlignment(Qt.AlignCenter)
-            course_name_label.setStyleSheet("""
-                font-size: 36px;
-                font-weight: bold;
-                color: #000000;
-                background-color: #f0f0f0;
-                padding: 20px;
-                border-radius: 15px;
-                margin-bottom: 30px;
-                box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
-            """)
+            theme.role(course_name_label, "title")
             self.layout.addWidget(course_name_label)
 
             course_work = self.service.courses().courseWork().list(courseId=self.course_id).execute()
@@ -306,43 +266,18 @@ class CourseDetails(QWidget):
             if not assignments:
                 no_assignments_label = QLabel('ไม่มี Assignment ที่พฦ')
                 no_assignments_label.setAlignment(Qt.AlignCenter)
-                no_assignments_label.setStyleSheet("""
-                    font-size: 28px;
-                    color: #333333;
-                """)
+                theme.role(no_assignments_label, "muted")
                 self.layout.addWidget(no_assignments_label)
             else:
                 assignments_label = QLabel('Assignments:')
                 assignments_label.setAlignment(Qt.AlignLeft)
-                assignments_label.setStyleSheet("""
-                    font-size: 30px;
-                    color: #000000;
-                    margin-bottom: 20px;
-                """)
+                theme.role(assignments_label, "heading")
                 self.layout.addWidget(assignments_label)
 
                 for assignment in assignments:
                     title = assignment.get('title', 'No Title')
                     button = QPushButton(title)
-                    button.setStyleSheet("""
-                        QPushButton {
-                            background-color: white;
-                            color: black;
-                            padding: 15px;
-                            border: 2px solid #45A049;
-                            border-radius: 10px;
-                            font-size: 20px;
-                            font-weight: bold;
-                            margin: 10px 0;
-                            transition: all 0.3s;
-                        }
-                        QPushButton:hover {
-                            background-color: #45A049;
-                            color: white;
-                            transform: scale(1.03);
-                            box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
-                        }
-                    """)
+                    theme.role(button, "menu")
                     button.setCursor(Qt.PointingHandCursor)
                     button.clicked.connect(lambda _, a=assignment: self.show_assignment_details(a))
                     self.layout.addWidget(button)
@@ -374,24 +309,14 @@ class ClassroomApp(QWidget):
         self.setLayout(self.main_layout)
 
         # Set background color
-        gradient = QLinearGradient(0, 0, self.width(), self.height())
-        gradient.setColorAt(0, QColor("#57ff9e"))  # ฟ้าอ่อน
-        gradient.setColorAt(0.5, QColor("#6e9b7b"))  # เทาเข้ม
-        gradient.setColorAt(1, QColor("#ebfef0")) 
-        palette = self.palette()
-        palette.setBrush(QPalette.Background, gradient)  # ญช้ gradient แทนสีพื้นหลังธรรมดา
         self.setAutoFillBackground(True)
-        self.setPalette(palette)
 
         
 
         self.header_label = QLabel('ONLINE EXAMINATION MANAGEMENT SYSTEM VIA GOOGLE FORMS')
         self.header_label.setFont(QFont('Arial', 24, QFont.Bold))
         self.header_label.setAlignment(Qt.AlignCenter)
-        self.header_label.setStyleSheet("background-color: black; color: #FFF; padding: 20px; border:solid 3px #FFF; border-radius:10px;")
-        opacity_effect = QGraphicsOpacityEffect()
-        opacity_effect.setOpacity(0.8)
-        self.header_label.setGraphicsEffect(opacity_effect)
+        theme.role(self.header_label, "appbar")
         self.main_layout.addWidget(self.header_label)
         
         # Create a scroll area for courses
@@ -415,7 +340,7 @@ class ClassroomApp(QWidget):
         self.assignment_details_widget = None
         # Refresh button
         self.refresh_button = QPushButton('Refresh')
-        self.refresh_button.setStyleSheet('background-color: #28B463; color: white; padding: 10px; border: none; font-size: 20px; border-radius:10px;')
+        theme.role(self.refresh_button, "primary")
         self.refresh_button.setCursor(Qt.PointingHandCursor)
         self.refresh_button.clicked.connect(self.load_classroom_data)
         self.main_layout.addWidget(self.refresh_button, alignment=Qt.AlignCenter)
@@ -424,14 +349,14 @@ class ClassroomApp(QWidget):
         self.status_label = QLabel('Fetching Classroom data...')
         self.status_label.setFont(QFont('Arial', 12))
         self.status_label.setAlignment(Qt.AlignCenter)
-        self.status_label.setStyleSheet("color: black;")
+        theme.role(self.status_label, "muted")
         self.main_layout.addWidget(self.status_label)
 
         self.load_classroom_data()
 
         # Exit button
         self.exit_button = QPushButton('Exit')
-        self.exit_button.setStyleSheet('background-color: #E74C3C; color: white; padding: 10px; border: none; font-size: 20px; border-radius:10px;')
+        theme.role(self.exit_button, "danger")
         self.exit_button.setCursor(Qt.PointingHandCursor)
         self.exit_button.clicked.connect(self.close)
         self.main_layout.addWidget(self.exit_button, alignment=Qt.AlignCenter)
@@ -441,8 +366,8 @@ class ClassroomApp(QWidget):
         self.clear_courses()
 
         if os.path.exists('token.json'):
-            creds = Credentials.from_authorized_user_file('token.json', SCOPES)
             try:
+                creds = Credentials.from_authorized_user_file('token.json', SCOPES)
                 self.service = build('classroom', 'v1', credentials=creds)
                 results = self.service.courses().list(pageSize=10).execute()
                 courses = results.get('courses', [])
@@ -458,29 +383,21 @@ class ClassroomApp(QWidget):
                         card_widget = QWidget()
                         card_layout = QVBoxLayout()
                         card_widget.setLayout(card_layout)
-                        card_widget.setFixedSize(600, 300)  # Set fixed size for equal width
+                        card_widget.setFixedSize(360, 180)  # Set fixed size for equal width
 
                         # Set card styles
-                        card_widget.setStyleSheet("""
-                            background-color: white;
-                            border-radius: 10px;
-                            border: 1px solid black;
-                            padding: 10px;
-                            margin: 10px;
-                            box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.2);
-                        """)
+                        theme.role(card_widget, "card")
 
                         # Course title
                         course_label = QLabel(course_name)
                         course_label.setFont(QFont('Arial', 16, QFont.Bold))
-                        course_label.setStyleSheet("color: #0000;")
                         course_label.setWordWrap(True)  # Enable word wrap
                         card_layout.addWidget(course_label)
 
                         # Course button to show details
                         course_button = QPushButton('View Course Details')
                         course_button.setFont(QFont('Arial', 12))
-                        course_button.setStyleSheet('background-color: #28B463; color: white; border: none; padding: 5px; border-radius: 5px;')
+                        theme.role(course_button, "primary")
                         course_button.setCursor(Qt.PointingHandCursor)
                         course_button.clicked.connect(lambda checked, c_id=course_id: self.show_course_details(c_id))
                         card_layout.addWidget(course_button)
@@ -564,8 +481,6 @@ class ClassroomApp(QWidget):
             key = self.get_key_name(key)
 
         self.log_keypress_to_file(key, timestamp)
-
-        self.log_keypress_to_file(key, timestamp)
     
     def log_keypress_to_file(self, key, timestamp):
         # เขียน log ลงไฟล์ 'keypress_log.log' โดยใช้การเข้ารหัส utf-8
@@ -646,6 +561,7 @@ class ClassroomApp(QWidget):
         
 if __name__ == "__main__":
     app = QApplication(sys.argv)
+    theme.apply(app)
     window = ClassroomApp()
     window.showFullScreen()
     window.show()
